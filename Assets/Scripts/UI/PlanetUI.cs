@@ -7,15 +7,18 @@ public class PlanetUI : MonoBehaviour
 {
     public static PlanetUI Instance;
 
+    [Header("Info Panel (Bottom Left)")]
+    public GameObject infoPanel;
     public TMP_Text titleText;
     public TMP_Text infoText;
-    TMP_Text tileInfoText;
-    public PlanetGridVisualizer gridVisualizer;
 
-    [Header("Closing Settings")]
-    public Button closeButton;
+    [Header("Grid Window")]
+    public GameObject gridWindow;
+    public PlanetGridVisualizer gridVisualizer;
+    public Button gridCloseButton;
 
     private bool justOpened = false;
+    private CelestialBody currentBody;
 
     void Awake()
     {
@@ -24,72 +27,77 @@ public class PlanetUI : MonoBehaviour
 
     void Start()
     {
-        gameObject.SetActive(false);
+        if (infoPanel != null) infoPanel.SetActive(false);
+        if (gridWindow != null) gridWindow.SetActive(false);
 
-        if (closeButton != null)
-            closeButton.onClick.AddListener(Hide);
+        if (gridCloseButton != null)
+            gridCloseButton.onClick.AddListener(CloseGridOnly);
     }
 
     void Update()
     {
-        if (!gameObject.activeSelf) return;
+        if (!infoPanel.activeSelf) return;
 
-        // ESC to close
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Hide();
+            CloseAll();
             return;
         }
 
-        // Click outside
         if (Input.GetMouseButtonDown(0) && !justOpened)
         {
             if (!EventSystem.current.IsPointerOverGameObject())
             {
-                Hide();
+                CloseAll();
             }
         }
 
-        if (justOpened)
-            justOpened = false;
+        if (justOpened) justOpened = false;
     }
 
     public void Show(CelestialBody body)
     {
-        if (body == null)
-        {
-            Debug.LogWarning("Tried to show null CelestialBody");
-            return;
-        }
+        if (body == null) return;
 
-        // === Populate UI ===
+        currentBody = body;
+
+        Debug.Log("=== Showing Planet UI for " + body.type + " ===");
+
         titleText.text = body.name ?? body.type.ToString();
+
+        float distance = body.visualObject != null
+            ? Vector3.Distance(body.visualObject.transform.position, Vector3.zero)
+            : 0f;
 
         infoText.text =
             $"Type: {body.type}\n" +
-            $"Surface Size: {body.surfaceSize}x{body.surfaceSize}";
+            $"Surface Size: {body.surfaceSize}x{body.surfaceSize}\n" +
+            $"Distance from Star: {distance:F1} units";
 
-        // Show the planet surface grid
-        if (gridVisualizer != null)
+        // Show Grid in separate window
+        if (gridVisualizer != null && gridWindow != null)
         {
             gridVisualizer.ShowSurface(body.surface);
-        }
-        else
-        {
-            Debug.LogWarning("gridVisualizer is not assigned on PlanetUI!");
+            gridWindow.SetActive(true);
         }
 
-        gameObject.SetActive(true);
-        justOpened = true;           // Prevent immediate close
+        infoPanel.SetActive(true);
+        justOpened = true;
 
-        Debug.Log("Showing UI for: " + body.type);
+        Debug.Log("Info Panel and Grid Window opened.");
     }
 
-    public void Hide()
+    public void CloseGridOnly()
     {
-        gameObject.SetActive(false);
-        justOpened = false;
-        Debug.Log("Planet UI Closed");
+        if (gridWindow != null) gridWindow.SetActive(false);
+        Debug.Log("Grid Window Closed");
+    }
+
+    public void CloseAll()
+    {
+        if (infoPanel != null) infoPanel.SetActive(false);
+        if (gridWindow != null) gridWindow.SetActive(false);
+        Debug.Log("All Planet UI Closed");
     }
 
     public void SelectTile(TerrainTile tile, SurfaceTileUI ui)

@@ -1,3 +1,4 @@
+using UnityEngine;
 using System.Collections.Generic;
 
 public class CelestialBody
@@ -10,6 +11,9 @@ public class CelestialBody
     public PlanetSurface surface;
 
     public List<CelestialBody> moons = new();
+
+    [System.NonSerialized]   // Don't save this in data
+    public GameObject visualObject;   // NEW - reference to the spawned visual
 
     public CelestialBody(CelestialBodyType type)
     {

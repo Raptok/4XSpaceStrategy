@@ -43,13 +43,12 @@ public class SolarSystemGenerator : MonoBehaviour
 
             else if (type == CelestialBodyType.BarrenPlanet || type == CelestialBodyType.OceanPlanet)
                 moonCount = Random.Range(0, 1);
-                
+
             for (int m = 0; m < moonCount; m++)
             {
                 CelestialBody moon = new(CelestialBodyType.Moon);
-                moon.surfaceSize = Random.Range(6, 10);
+                moon.surfaceSize = Random.Range(5, 9); // Smaller
                 moon.surface = PlanetTerrainGenerator.GenerateSurface(moon);
-
                 body.moons.Add(moon);
             }
 

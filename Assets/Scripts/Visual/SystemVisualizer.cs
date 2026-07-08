@@ -39,32 +39,66 @@ public class SystemVisualizer : MonoBehaviour
             GameObject visual = Instantiate(planetPrefab, systemParent);
             visual.name = bodyData.type.ToString();
 
-            float scale = Mathf.Max(0.6f, bodyData.surfaceSize * 0.08f); // Smaller base scale
+            // IMPORTANT: Assign visual reference FIRST
+            bodyData.visualObject = visual;
+
+            float scale = Mathf.Max(0.6f, bodyData.surfaceSize * 0.08f);
             visual.transform.localScale = Vector3.one * scale;
 
-            // Data & Orbit Motion
+            // Data for clicking
             PlanetClick clickHandler = visual.GetComponent<PlanetClick>();
-            if (clickHandler != null) clickHandler.data = bodyData;
+            if (clickHandler != null)
+                clickHandler.data = bodyData;
+            else
+                Debug.LogWarning($"Planet prefab missing PlanetClick component on {visual.name}");
 
-            OrbitalMotion orbit = visual.GetComponent<OrbitalMotion>();
-            if (orbit != null)
-            {
-                orbit.parentBody = starObj.transform;
-                orbit.orbitRadius = currentRadius;
-                orbit.orbitSpeed = 25f / Mathf.Max(1f, currentRadius * 0.3f);
-            }
+            // === ORBIT CONTROLLER SETUP ===
+            OrbitController orbitController = visual.AddComponent<OrbitController>();
+            orbitController.Setup(starObj.transform, currentRadius, 25f / Mathf.Max(1f, currentRadius * 0.35f));
+            Debug.Log($"Added OrbitController to {visual.name} with radius {currentRadius}");
 
-            // Orbit Ring
-            OrbitRing ring = visual.AddComponent<OrbitRing>();
-            ring.Build(starObj.transform, currentRadius);   // This should match the planet's orbitRadius
+            // Assign parent BEFORE any Start() logic runs
+            orbitController.parentBody = starObj.transform;
+
+            orbitController.orbitRadius = currentRadius;
+            orbitController.orbitSpeed = 25f / Mathf.Max(1f, currentRadius * 0.35f);
+
+            Debug.Log($"Assigned parentBody = Star for {visual.name}");
 
             // Color
             Renderer rend = visual.GetComponent<Renderer>();
             if (rend != null)
                 rend.material.color = GetColorForType(bodyData.type);
 
-            // Tighter spacing
             currentRadius += 5f + (bodyData.surfaceSize * 0.25f);
+        }
+
+        // Spawn Moons for each planet
+        for (int i = 0; i < bodies.Count; i++)
+        {
+            var planetData = bodies[i];
+            var planetVisual = planetData.visualObject;
+
+            if (planetVisual == null || planetData.moons.Count == 0) continue;
+
+            foreach (var moonData in planetData.moons)
+            {
+                GameObject moonVisual = Instantiate(planetPrefab, systemParent); // Reuse prefab for now
+                moonVisual.name = "Moon of " + planetVisual.name;
+                moonVisual.transform.localScale = Vector3.one * (moonData.surfaceSize * 0.05f);
+
+                moonData.visualObject = moonVisual;
+
+                // Moon Orbit Controller (parent = planet)
+                OrbitController moonOrbit = moonVisual.AddComponent<OrbitController>();
+                moonOrbit.Setup(planetVisual.transform, Random.Range(2.5f, 5f), Random.Range(40f, 80f)); // Faster, closer
+
+                // Click handler
+                PlanetClick moonClick = moonVisual.GetComponent<PlanetClick>();
+                if (moonClick != null) moonClick.data = moonData;
+
+                Debug.Log($"Spawned moon for {planetVisual.name}");
+            }
         }
     }
 
