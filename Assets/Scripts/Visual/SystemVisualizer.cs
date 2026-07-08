@@ -3,164 +3,81 @@ using System.Collections.Generic;
 
 public class SystemVisualizer : MonoBehaviour
 {
-    public GameObject starPrefab;
+    [Header("Prefabs")]
     public GameObject planetPrefab;
-    public GameObject asteroidPrefab;
+    public GameObject starPrefab;
 
-    public float orbitSpacing = 3f;
+    [Header("References")]
+    public Transform systemParent;
 
-    public void BuildSystem(List<CelestialBody> system)
+    public void VisualizeSystem(List<CelestialBody> bodies, StarType starType)
     {
-        ClearSystem();
-
-        // Spawn star at center
-        Instantiate(starPrefab, Vector3.zero, Quaternion.identity, transform);
-
-        float orbitRadius = orbitSpacing;
-
-        foreach (var body in system)
+        if (planetPrefab == null || systemParent == null)
         {
-            CreateOrbitRing(orbitRadius);
-            SpawnOrbitalBody(body, orbitRadius);
-            orbitRadius += orbitSpacing;
+            Debug.LogError("Missing references in SystemVisualizer!");
+            return;
         }
 
-    }
+        // Clear old visuals
+        foreach (Transform child in systemParent)
+            Destroy(child.gameObject);
 
-    void SpawnOrbitalBody(CelestialBody body, float radius)
-    {
-        GameObject prefab = GetPrefabForType(body.type);
-        GameObject obj = Instantiate(prefab, transform);
+        // Spawn Central Star
+        GameObject starObj = starPrefab != null
+            ? Instantiate(starPrefab, systemParent)
+            : GameObject.CreatePrimitive(PrimitiveType.Sphere);
 
-        SpawnMoons(obj.transform, body.moons);
+        starObj.name = "Star";
+        starObj.transform.localScale = Vector3.one * 3.5f;
 
-        OrbitalMotion motion = obj.GetComponent<OrbitalMotion>();
-        if (motion == null)
-            motion = obj.AddComponent<OrbitalMotion>();
+        float currentRadius = 8f;   // Start closer to the star
 
-        motion.orbitRadius = radius;
-        motion.sizeSpeedMultiplier = GetSpeedMultiplier(body.type);
-
-        obj.name = body.type.ToString();
-        ApplyVisualStyle(obj, body.type);
-
-        PlanetClick click = obj.GetComponent<PlanetClick>();
-        if (click == null)
-            click = obj.AddComponent<PlanetClick>();
-
-        click.data = body;
-    }
-
-    GameObject GetPrefabForType(CelestialBodyType type)
-    {
-        if (type == CelestialBodyType.Asteroid) return asteroidPrefab;
-        return planetPrefab;
-    }
-
-    void ApplyVisualStyle(GameObject obj, CelestialBodyType type)
-    {
-        float scale = 1f;
-        Color color = Color.white;
-
-        switch (type)
+        for (int i = 0; i < bodies.Count; i++)
         {
-            case CelestialBodyType.GasGiant:
-                scale = 2.5f;
-                color = new Color(0.8f, 0.6f, 0.3f);
-                break;
+            var bodyData = bodies[i];
 
-            case CelestialBodyType.IcePlanet:
-                scale = 1.2f;
-                color = Color.cyan;
-                break;
+            GameObject visual = Instantiate(planetPrefab, systemParent);
+            visual.name = bodyData.type.ToString();
 
-            case CelestialBodyType.OceanPlanet:
-                scale = 1.2f;
-                color = new Color(0.0f, 0.0f, 1.0f);
-                break;
+            float scale = Mathf.Max(0.6f, bodyData.surfaceSize * 0.08f); // Smaller base scale
+            visual.transform.localScale = Vector3.one * scale;
 
-            case CelestialBodyType.VolcanicPlanet:
-                scale = 1.3f;
-                color = new Color(1f, 0.3f, 0.1f);
-                break;
+            // Data & Orbit Motion
+            PlanetClick clickHandler = visual.GetComponent<PlanetClick>();
+            if (clickHandler != null) clickHandler.data = bodyData;
 
-            case CelestialBodyType.RockyPlanet:
-                scale = 1.1f;
-                color = new Color(0.2f, 0.6f, 0.1f);
-                break;
+            OrbitalMotion orbit = visual.GetComponent<OrbitalMotion>();
+            if (orbit != null)
+            {
+                orbit.parentBody = starObj.transform;
+                orbit.orbitRadius = currentRadius;
+                orbit.orbitSpeed = 25f / Mathf.Max(1f, currentRadius * 0.3f);
+            }
 
-            case CelestialBodyType.BarrenPlanet:
-                scale = 1.0f;
-                color = new Color(0.75f, 0.75f, 0.75f);
-                break;
+            // Orbit Ring
+            OrbitRing ring = visual.AddComponent<OrbitRing>();
+            ring.Build(starObj.transform, currentRadius);   // This should match the planet's orbitRadius
 
-            case CelestialBodyType.Asteroid:
-                scale = 0.4f;
-                color = Color.gray;
-                break;
+            // Color
+            Renderer rend = visual.GetComponent<Renderer>();
+            if (rend != null)
+                rend.material.color = GetColorForType(bodyData.type);
+
+            // Tighter spacing
+            currentRadius += 5f + (bodyData.surfaceSize * 0.25f);
         }
-
-        obj.transform.localScale *= scale;
-
-        Renderer r = obj.GetComponent<Renderer>();
-        if (r != null)
-            r.material.color = color;
     }
 
-    void CreateOrbitRing(float radius)
-    {
-        GameObject ring = new GameObject("OrbitRing");
-        ring.transform.parent = transform;
-
-        LineRenderer lr = ring.AddComponent<LineRenderer>();
-        lr.widthMultiplier = 0.05f;
-        lr.useWorldSpace = false;
-
-        OrbitRing or = ring.AddComponent<OrbitRing>();
-        or.Build(radius);
-    }
-
-    float GetSpeedMultiplier(CelestialBodyType type)
+    private Color GetColorForType(CelestialBodyType type)
     {
         switch (type)
         {
-            case CelestialBodyType.Asteroid: return 1.5f;
-            case CelestialBodyType.Moon: return 1.2f;
-            case CelestialBodyType.BarrenPlanet: return 1f;
-            case CelestialBodyType.OceanPlanet: return 1f;
-            case CelestialBodyType.RockyPlanet: return 1f;
-            case CelestialBodyType.IcePlanet: return 0.9f;
-            case CelestialBodyType.VolcanicPlanet: return 0.95f;
-            case CelestialBodyType.GasGiant: return 0.5f;
-        }
-        return 1f;
-    }
-
-    void SpawnMoons(Transform parent, List<CelestialBody> moons)
-    {
-        float radius = 0.6f;
-
-        foreach (var moon in moons)
-        {
-            GameObject m = Instantiate(planetPrefab, parent);
-            m.transform.localScale *= 0.4f;
-
-            OrbitalMotion om = m.AddComponent<OrbitalMotion>();
-            om.orbitRadius = radius;
-            om.baseSpeed *= 3f;
-
-            PlanetClick pc = m.AddComponent<PlanetClick>();
-            pc.data = moon;
-
-            radius += 0.5f;
-        }
-    }
-
-    void ClearSystem()
-    {
-        for (int i = transform.childCount - 1; i >= 0; i--)
-        {
-            Destroy(transform.GetChild(i).gameObject);
+            case CelestialBodyType.GasGiant: return new Color(0.9f, 0.7f, 0.4f);
+            case CelestialBodyType.IcePlanet: return Color.cyan;
+            case CelestialBodyType.VolcanicPlanet: return new Color(0.8f, 0.2f, 0.1f);
+            case CelestialBodyType.OceanPlanet: return new Color(0.2f, 0.5f, 0.9f);
+            case CelestialBodyType.BarrenPlanet: return Color.gray;
+            default: return Color.green;
         }
     }
 }

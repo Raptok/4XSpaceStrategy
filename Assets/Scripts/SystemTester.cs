@@ -1,15 +1,18 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 public class SystemTester : MonoBehaviour
 {
-    public SystemVisualizer visualizer;
+    [Header("References")]
+    public GameManager gameManager;        // Assign in Inspector
 
-    void Start()
+    private void Update()
     {
-        SolarSystemGenerator gen = GetComponent<SolarSystemGenerator>();
-        List<CelestialBody> system = gen.GenerateSystem();
-
-        visualizer.BuildSystem(system);
+        if (Input.GetKeyDown(KeyCode.R))   // Press R to regenerate
+        {
+            if (gameManager != null)
+                gameManager.GenerateStartingSystem();
+            else
+                Debug.Log("Assign GameManager in SystemTester!");
+        }
     }
 }

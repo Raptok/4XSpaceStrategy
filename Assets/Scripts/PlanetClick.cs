@@ -2,11 +2,24 @@ using UnityEngine;
 
 public class PlanetClick : MonoBehaviour
 {
-    public CelestialBody data;
+    public CelestialBody data;           // This should be set when spawning the visual
 
-    void OnMouseDown()
+    private void OnMouseDown()
     {
-        Debug.Log("Clicked: " + gameObject.name);
-        PlanetUI.Instance.Show(data);
+        if (data == null)
+        {
+            Debug.LogWarning("Planet has no data!");
+            return;
+        }
+
+        PlanetUI ui = FindObjectOfType<PlanetUI>(true); // true = include inactive
+        if (ui != null)
+        {
+            ui.Show(data);
+        }
+        else
+        {
+            Debug.LogError("PlanetUI script not found in scene! Create a GameObject with PlanetUI component.");
+        }
     }
 }
