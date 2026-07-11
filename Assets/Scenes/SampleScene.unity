@@ -1029,7 +1029,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2575473b369aa2440ae5ab4dca7d12b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SystemVisualizer
-  solarSystemGenerator: {fileID: 0}
+  solarSystemGenerator: {fileID: 1181017992}
   planetPrefab: {fileID: 6168113463649944870, guid: 829a7503ff25e634b8e8d66e5209948b, type: 3}
   starPrefab: {fileID: 7898429957572888086, guid: 664d5acc748e99140b56ff28232a5d5f, type: 3}
   systemParent: {fileID: 1530645742}
