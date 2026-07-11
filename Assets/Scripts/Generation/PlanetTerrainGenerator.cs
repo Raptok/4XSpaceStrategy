@@ -4,23 +4,29 @@ public static class PlanetTerrainGenerator
 {
     public static PlanetSurface GenerateSurface(CelestialBody body)
     {
-        int size = body.surfaceSize;
-        PlanetSurface surface = new PlanetSurface(size, size);
+        // Rectangular map: Wider than tall for "world map" feel
+        int width = body.surfaceSize * 2;   // Example: 2:1 ratio
+        int height = body.surfaceSize;
 
-        for (int x = 0; x < size; x++)
+        PlanetSurface surface = new PlanetSurface(width, height);
+
+        for (int x = 0; x < width; x++)
         {
-            for (int y = 0; y < size; y++)
+            for (int y = 0; y < height; y++)
             {
-                TerrainType type = GenerateTerrainByNoise(body.type, x, y, size);
+                TerrainType type = GenerateTerrainByNoise(body.type, x, y, width, height);
                 surface.tiles[x, y] = new TerrainTile(type);
             }
         }
 
+        Debug.Log($"Generated rectangular surface for {body.type} ({width}x{height})");
         return surface;
     }
 
-    static TerrainType GenerateTerrainByNoise(CelestialBodyType planetType, int x, int y, int size)
+    static TerrainType GenerateTerrainByNoise(CelestialBodyType planetType, int x, int y, int width, int height)
     {
+        Debug.Log($"Generating terrain at ({x}, {y}) for size {width}x{height}");
+
         float scale = 0.06f;
 
         float elevation = Mathf.PerlinNoise(x * scale, y * scale);

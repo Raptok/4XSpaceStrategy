@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class PlanetSurface
 {
     public int width;
@@ -8,6 +10,7 @@ public class PlanetSurface
     {
         width = w;
         height = h;
-        tiles = new TerrainTile[w, h];
+        tiles = new TerrainTile[width, height];
+        Debug.Log($"Created rectangular surface {width}x{height}");
     }
 }
