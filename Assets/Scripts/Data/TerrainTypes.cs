@@ -4,6 +4,7 @@ public enum TerrainType
     Mountains,
     Forest,
     Ice,
+    MagmaField,
     Volcano,
     Desert,
     Ocean,

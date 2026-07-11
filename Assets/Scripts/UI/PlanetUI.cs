@@ -82,6 +82,13 @@ public class PlanetUI : MonoBehaviour
         }
 
         infoPanel.SetActive(true);
+
+        // Show the Terrain Editor panel for this planet
+        if (TerrainEditorPanel.Instance != null)
+        {
+            TerrainEditorPanel.Instance.ShowForPlanet(body);
+        }
+
         justOpened = true;
 
         Debug.Log("Info Panel and Grid Window opened.");
@@ -90,6 +97,10 @@ public class PlanetUI : MonoBehaviour
     public void CloseGridOnly()
     {
         if (gridWindow != null) gridWindow.SetActive(false);
+
+        if (TerrainEditorPanel.Instance != null)
+            TerrainEditorPanel.Instance.Hide();
+
         Debug.Log("Grid Window Closed");
     }
 
@@ -97,6 +108,11 @@ public class PlanetUI : MonoBehaviour
     {
         if (infoPanel != null) infoPanel.SetActive(false);
         if (gridWindow != null) gridWindow.SetActive(false);
+
+        // Hide the Terrain Editor when closing the planet UI
+        if (TerrainEditorPanel.Instance != null)
+            TerrainEditorPanel.Instance.Hide();
+
         Debug.Log("All Planet UI Closed");
     }
 

@@ -11,6 +11,8 @@ public class GameManager : MonoBehaviour
     [Header("Scene Setup")]
     public Transform systemParent;
 
+    public bool isEditMode = false;   // Toggle this to enter/exit sandbox mode
+
     private void Start()
     {
         GenerateStartingSystem();
