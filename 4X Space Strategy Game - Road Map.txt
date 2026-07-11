@@ -1,0 +1,59 @@
+4X Space Strategy Game
+1. Core System Generation
+
+Procedural star types (O, B, A, F, G, K, M)
+Distance-based planet placement (habitable zone logic later)
+Planet type variation (Volcanic, Rocky, Ocean, Ice, Gas Giant, Barren, etc.)
+Realistic size scaling (Gas Giants larger)
+Moon spawning with correct orbits and rings
+Asteroid belts (future)
+Multi-star systems (binary/trinary with barycenter)
+
+2. Visuals & Camera
+
+Orbit lines for all bodies
+Colored planets based on type
+Top-down camera with WASD pan and smooth height "zoom"
+Toggleable visuals (orbits, habitable zones, labels)
+
+3. Interaction & UI
+
+Click to select celestial bodies
+Planet info panel (bottom left) with type, size, distance
+Draggable planet surface grid window
+Close with X, ESC, or click outside
+Runtime orbit radius tuner for testing
+
+4. Economy & Planets
+
+Grid-based surface with biomes/tiles
+Buildings on grid (size like 1x1, 2x2)
+Labor resource from population
+Resource deposits
+
+5. Ships & Fleets
+
+Civilian (mining, cargo) and Military ships
+Ship designer (hull, modules, drag-drop)
+Fleet command with flagships and groups (Star Ruler 2 style)
+Shipping lanes and trade routes
+
+6. Tech & Progression
+
+Visible tech tree (nodes with prerequisites)
+Secret techs unlocked by achievements/specialization
+Terraforming and settlement techs (domes, floating cities, etc.)
+
+7. Advanced / Stretch
+
+Sandbox system editor (save/load custom systems)
+Anomalous/rare systems for discovery
+Co-op empire control
+Direct battle control (ships, ground units)
+Real-inspired star systems (Alpha Centauri, etc.)
+
+8. Performance & Polish
+
+Late-game optimization (ECS/DOTS later if needed)
+Toggleable visuals
+Save/Load systems

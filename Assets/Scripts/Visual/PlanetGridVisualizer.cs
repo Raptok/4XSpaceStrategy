@@ -5,6 +5,7 @@ public class PlanetGridVisualizer : MonoBehaviour
 {
     public GameObject tilePrefab;
     public float tileSize = 32f;
+    public GameObject gridWindow; // Assign in Inspector (the Grid Window GameObject)
 
     PlanetSurface surface;
     SurfaceTileUI selected;
@@ -14,6 +15,18 @@ public class PlanetGridVisualizer : MonoBehaviour
         this.surface = surface;
         ClearGrid();
         BuildGrid();
+
+        // Scale the grid window
+        if (gridWindow != null)
+        {
+            RectTransform gridRect = gridWindow.GetComponent<RectTransform>();
+            if (gridRect != null)
+            {
+                float scaleFactor = Mathf.Min(1f, 600f / (surface.width * 20f));
+                gridRect.localScale = Vector3.one * scaleFactor;
+                Debug.Log($"Scaled grid window for size {surface.width}x{surface.height}");
+            }
+        }
     }
 
     void BuildGrid()

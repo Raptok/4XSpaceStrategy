@@ -99,16 +99,30 @@ public class SolarSystemGenerator : MonoBehaviour
     {
         switch (type)
         {
-            case CelestialBodyType.Asteroid: return Random.Range(3, 4);
-            case CelestialBodyType.Moon: return Random.Range(5, 8);
-            case CelestialBodyType.RockyPlanet: return Random.Range(9, 16);
-            case CelestialBodyType.IcePlanet: return Random.Range(9, 16);
-            case CelestialBodyType.OceanPlanet: return Random.Range(9, 16);
-            case CelestialBodyType.VolcanicPlanet: return Random.Range(9, 16);
-            case CelestialBodyType.GasGiant: return Random.Range(17, 18);
-            case CelestialBodyType.BarrenPlanet: return Random.Range(9, 16);
+            case CelestialBodyType.GasGiant:
+                return Random.Range(16, 22); // Large
+            case CelestialBodyType.IcePlanet:
+            case CelestialBodyType.OceanPlanet:
+            case CelestialBodyType.RockyPlanet:
+                return Random.Range(8, 15); // Medium
+            case CelestialBodyType.VolcanicPlanet:
+                return Random.Range(9, 14);
+            case CelestialBodyType.BarrenPlanet:
+                return Random.Range(7, 12);
+            case CelestialBodyType.Moon:
+                return Random.Range(4, 8); // Small
+            case CelestialBodyType.Asteroid:
+                return Random.Range(2, 5);
+            default:
+                return 10;
         }
-        return 10;
+    }
+
+    float GetOrbitSpeedMultiplier(CelestialBodyType type)
+    {
+        if (type == CelestialBodyType.GasGiant) return 0.6f; // Slower
+        if (type == CelestialBodyType.Moon) return 2.5f; // Faster moons
+        return 1f;
     }
 
     CelestialBodyType RollBodyType()
