@@ -73,6 +73,14 @@ public static class PlanetTerrainGenerator
             return TerrainType.Ocean;
         }
 
+        // Rocky Planets
+        if (planetType == CelestialBodyType.RockyPlanet)
+        {
+            if (ridges > 0.75f) return TerrainType.Mountains;
+            if (moisture > 0.6f) return TerrainType.Forest;
+            return TerrainType.Plains;
+        }
+
         // === Moons & Asteroids - NO volcanoes or magma ===
         if (planetType == CelestialBodyType.Moon || planetType == CelestialBodyType.Asteroid)
         {
@@ -94,13 +102,6 @@ public static class PlanetTerrainGenerator
         if (ridges > 0.82f && planetType != CelestialBodyType.OceanPlanet)
             return TerrainType.Mountains;
 
-        // Rocky Planets
-        if (planetType == CelestialBodyType.RockyPlanet)
-        {
-            if (ridges > 0.75f) return TerrainType.Mountains;
-            if (moisture > 0.6f) return TerrainType.Forest;
-            return TerrainType.Plains;
-        }
 
         return TerrainType.Barren;
     }

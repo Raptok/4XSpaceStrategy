@@ -94,7 +94,7 @@ public class PlanetGridVisualizer : MonoBehaviour
             case TerrainType.Ocean: return Color.blue;
             case TerrainType.Ice: return Color.cyan;
             case TerrainType.Volcano: return new Color(1f, 0.3f, 0.1f);
-            case TerrainType.MagmaField: return new Color(1f, 0.4f, 0.1f); // Bright orange-red for lava/magma
+            case TerrainType.MagmaField: return new Color(1f, 0.64f, 0f); // Bright orange-red for lava/magma
             case TerrainType.Desert: return new Color(1f, 0.9f, 0.5f);
             case TerrainType.Crater: return new Color(0.5f, 0.5f, 0.5f);
         }
